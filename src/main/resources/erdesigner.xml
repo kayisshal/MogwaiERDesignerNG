@@ -4,6 +4,14 @@
         <Entry id="TITLE">
             <Text>Mogwai ER-Designer NG</Text>
         </Entry>
+        <Entry id="MANUAL">
+            <Text lang="de">Handbuch</Text>
+            <Text lang="en">Manual</Text>
+        </Entry>
+        <Entry id="USERMANUAL">
+            <Text lang="de">Benutzerhandbuch</Text>
+            <Text lang="en">User Manual</Text>
+        </Entry>
         <Entry id="FILE">
             <Text lang="de">Datei</Text>
             <Text lang="en">File</Text>

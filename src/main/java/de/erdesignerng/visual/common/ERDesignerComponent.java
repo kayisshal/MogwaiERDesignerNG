@@ -45,9 +45,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +76,10 @@ public final class ERDesignerComponent implements ResourceHelperProvider {
     private JToggleButton viewButton;
 
     private JToggleButton entityButton;
+
+    //private JToggleButton userButton;
+
+    //private DefaultAction userAction;
 
     private DefaultMenu lruMenu;
 
@@ -305,7 +307,7 @@ public final class ERDesignerComponent implements ResourceHelperProvider {
         entityAction.setEnabled(aEditor.supportsEntityAction());
         relationAction.setEnabled(aEditor.supportsRelationAction());
         commentAction.setEnabled(aEditor.supportsCommentAction());
-        viewAction.setEnabled(aEditor.supportsViewAction());
+        //viewAction.setEnabled(aEditor.supportsViewAction());
         intelligentLayoutCheckbox.setEnabled(aEditor.supportsIntelligentLayout());
         displayCommentsAction.setEnabled(aEditor.supportsCommentAction());
         displayGridAction.setEnabled(aEditor.supportsGrid());
@@ -330,6 +332,31 @@ public final class ERDesignerComponent implements ResourceHelperProvider {
         aEditor.repaintGraph();
     }
 
+    //user-manual command
+    protected void commandUserManualShow() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File pdfFile = new File("Official-User-Manual.pdf");
+        if (!pdfFile.canRead() || !pdfFile.canWrite()){
+            pdfFile.setWritable(true);
+            pdfFile.setReadable(true);
+        }
+        try {            
+            InputStream inputStream = (classLoader.getResourceAsStream( "de/erdesignerng/usermanual/Official-User-Manual.pdf"));
+            OutputStream outputStream = new FileOutputStream(pdfFile);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            outputStream.close();
+            inputStream.close();
+            Desktop.getDesktop().open(pdfFile);
+        } catch (Exception e) {
+            worldConnector.notifyAboutException(e);
+        }
+    }
+
+
     private void commandSetTool(ToolEnum aTool) {
         currentTool = aTool;
         editor.commandSetTool(aTool);
@@ -339,6 +366,9 @@ public final class ERDesignerComponent implements ResourceHelperProvider {
 
         // Required by Java3D
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+
+         DefaultAction theUserManualAction = new DefaultAction(
+                aEvent -> commandUserManualShow(), this, ERDesignerBundle.USERMANUAL);
 
         DefaultAction theReverseEngineerAction = new DefaultAction(
                 new ReverseEngineerCommand(), this,
@@ -570,8 +600,7 @@ public final class ERDesignerComponent implements ResourceHelperProvider {
         theDBMenu.addSeparator();
         theDBMenu.add(new DefaultMenuItem(theCkeckModelAction));
         theDBMenu.addSeparator();
-        theDBMenu
-                .add(new DefaultMenuItem(theCompleteCompareWithDatabaseAction));
+        theDBMenu.add(new DefaultMenuItem(theCompleteCompareWithDatabaseAction));
         theDBMenu.add(new DefaultMenuItem(theCompleteCompareWithModelAction));
         theDBMenu.addSeparator();
         theDBMenu.add(new DefaultMenuItem(theConvertModelAction));
@@ -734,11 +763,24 @@ public final class ERDesignerComponent implements ResourceHelperProvider {
         zoomBox.setAction(theZoomAction);
         zoomBox.setModel(theZoomModel);
 
+        // USER MANUAL MENU
+        ERDesignerToolbarEntry theManualMenu = new ERDesignerToolbarEntry(
+            ERDesignerBundle.MANUAL);
+
+        theManualMenu.add(new DefaultMenuItem(theUserManualAction));
+        //theManualMenu.addSeparator();
+        //jika ada penambahan button baru pada menu Manual
+
+        theManualMenu.setToolTipText("Guide Menu");
+
+
         DefaultToolbar theToolBar = worldConnector.getToolBar();
 
         theToolBar.add(theFileMenu);
         theToolBar.add(theDBMenu);
         theToolBar.add(theViewMenu);
+        // penambahan menu Manual
+        theToolBar.add(theManualMenu);
         theToolBar.addSeparator();
 
         theToolBar.add(theNewAction);
@@ -751,6 +793,7 @@ public final class ERDesignerComponent implements ResourceHelperProvider {
         theToolBar.add(zoomInAction);
         theToolBar.add(zoomOutAction);
         theToolBar.addSeparator();
+
 
         handButton = new DefaultToggleButton(handAction);
         relationButton = new DefaultToggleButton(relationAction);
