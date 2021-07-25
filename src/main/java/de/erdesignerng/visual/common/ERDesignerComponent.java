@@ -771,7 +771,7 @@ public final class ERDesignerComponent implements ResourceHelperProvider {
         //theManualMenu.addSeparator();
         //jika ada penambahan button baru pada menu Manual
 
-        theManualMenu.setToolTipText("Guide Menu");
+        theManualMenu.setToolTipText("Manual Menu");
 
 
         DefaultToolbar theToolBar = worldConnector.getToolBar();
